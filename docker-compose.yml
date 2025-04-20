@@ -1,0 +1,22 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: server-monitor-db
+    restart: unless-stopped
+    ports:
+      - '5445:5432'
+    environment:
+      POSTGRES_USER: monitor_user
+      POSTGRES_PASSWORD: supersecret
+      POSTGRES_DB: monitor_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - monitor-net
+
+volumes:
+  postgres_data:
+
+networks:
+  monitor-net:
+    driver: bridge

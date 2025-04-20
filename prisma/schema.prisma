@@ -1,0 +1,98 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  password  String // hashed
+  role      Role     @default(VIEWER)
+  createdAt DateTime @default(now())
+  alerts    Alert[]  @relation("AlertAcknowledgedBy")
+}
+
+model Server {
+  id         String      @id @default(cuid())
+  name       String
+  ip         String
+  tags       String[]
+  createdAt  DateTime    @default(now())
+  metrics    Metric[]
+  alerts     Alert[]
+  thresholds Threshold[]
+}
+
+model Metric {
+  id       String @id @default(cuid())
+  server   Server @relation(fields: [serverId], references: [id])
+  serverId String
+
+  cpuUsage    Float
+  memoryUsage Float
+  diskUsage   Float
+  netIn       Float
+  netOut      Float
+  loadAvg     Float?
+
+  timestamp DateTime @default(now())
+
+  @@index([serverId, timestamp])
+}
+
+model Alert {
+  id       String @id @default(cuid())
+  server   Server @relation(fields: [serverId], references: [id])
+  serverId String
+
+  type             String // 'CPU', 'Memory', etc.
+  level            AlertLevel
+  message          String
+  metricId         String?
+  acknowledged     Boolean    @default(false)
+  acknowledgedBy   User?      @relation("AlertAcknowledgedBy", fields: [acknowledgedById], references: [id])
+  acknowledgedById String?
+
+  createdAt DateTime @default(now())
+
+  @@index([serverId, createdAt])
+}
+
+model Threshold {
+  id       String @id @default(cuid())
+  server   Server @relation(fields: [serverId], references: [id])
+  serverId String
+
+  metricType MetricType
+  value      Float // the threshold to trigger alert
+  level      AlertLevel
+  enabled    Boolean    @default(true)
+  createdAt  DateTime   @default(now())
+
+  @@unique([serverId, metricType])
+}
+
+enum MetricType {
+  CPU
+  MEMORY
+  DISK
+  NET_IN
+  NET_OUT
+  LOAD_AVG
+}
+
+enum AlertLevel {
+  INFO
+  WARNING
+  CRITICAL
+}
+
+enum Role {
+  ADMIN
+  VIEWER
+}
