@@ -20,7 +20,7 @@ model User {
 model Server {
   id         String      @id @default(cuid())
   name       String
-  ip         String
+  ip         String      @unique 
   tags       String[]
   createdAt  DateTime    @default(now())
   metrics    Metric[]

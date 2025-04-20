@@ -14,21 +14,15 @@ export class ApiKeyMiddleware implements NestMiddleware {
       return next();
     }
 
-    const encryptedKey = req.headers['x-api-key'] as string | undefined;
+    const incomingKey = req.headers['x-api-key'] as string | undefined;
 
-    if (!encryptedKey) {
+    if (!incomingKey) {
+      console.error('Missing API key');
       throw new UnauthorizedException('Missing API key');
     }
 
-    let decryptedKey: string;
-
-    try {
-      decryptedKey = decrypt(encryptedKey);
-    } catch {
-      throw new UnauthorizedException('Malformed or corrupted API key');
-    }
-
-    if (decryptedKey !== config.apiKey) {
+    if (incomingKey !== config.apiKey) {
+      console.error('Invalid API key');
       throw new UnauthorizedException('Invalid API key');
     }
 

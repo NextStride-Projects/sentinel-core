@@ -4,7 +4,7 @@
   "description": "",
   "author": "",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "MIT",
   "scripts": {
     "prepare": "husky",
     "build": "nest build",
@@ -21,7 +21,8 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "generate:keys": "ts-node scripts/generate-keys.ts",
     "generate:jwt": "ts-node scripts/generate-jwt-secret.ts",
-    "release": "standard-version --skip.tag --no-verify"
+    "release": "standard-version --skip.tag --no-verify",
+    "seed": "ts-node prisma/seed.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
